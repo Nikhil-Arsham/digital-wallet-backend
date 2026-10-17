@@ -123,6 +123,12 @@ npm run dev
 
 Frontend URL: `http://localhost:5173`
 
+## Application Screenshots
+
+See the [Frontend Repository](https://github.com/Nikhil-Arsham/digital-wallet-frontend)
+for screenshots of the user dashboard, admin dashboard, transaction history,
+and Swagger API documentation.
+
 ## API Overview
 
 | Method | Endpoint | Purpose |
