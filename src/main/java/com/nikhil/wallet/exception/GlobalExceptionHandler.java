@@ -18,31 +18,22 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ApiErrorResponse> handleBadRequest(
             BadRequestException exception) {
-
         return buildResponse(
-                HttpStatus.BAD_REQUEST,
-                exception.getMessage()
-        );
+                HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiErrorResponse> handleNotFound(
             ResourceNotFoundException exception) {
-
         return buildResponse(
-                HttpStatus.NOT_FOUND,
-                exception.getMessage()
-        );
+                HttpStatus.NOT_FOUND, exception.getMessage());
     }
 
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<ApiErrorResponse> handleConflict(
             ConflictException exception) {
-
         return buildResponse(
-                HttpStatus.CONFLICT,
-                exception.getMessage()
-        );
+                HttpStatus.CONFLICT, exception.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -56,41 +47,29 @@ public class GlobalExceptionHandler {
                 .map(error -> error.getDefaultMessage())
                 .orElse("Invalid request");
 
-        return buildResponse(
-                HttpStatus.BAD_REQUEST,
-                message
-        );
+        return buildResponse(HttpStatus.BAD_REQUEST, message);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleException(
             Exception exception) {
 
-        // Log the full exception and stack trace on the server.
         logger.error(
-                "Unexpected error while processing request",
-                exception
-        );
+                "Unexpected error while processing request: {}",
+                exception.toString(),
+                exception);
 
-        // Do not expose internal exception details to clients.
         return buildResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
-                "An unexpected error occurred"
-        );
+                "An unexpected error occurred");
     }
 
     private ResponseEntity<ApiErrorResponse> buildResponse(
-            HttpStatus status,
-            String message) {
+            HttpStatus status, String message) {
 
         ApiErrorResponse response =
-                new ApiErrorResponse(
-                        status.value(),
-                        message
-                );
+                new ApiErrorResponse(status.value(), message);
 
-        return ResponseEntity
-                .status(status)
-                .body(response);
+        return ResponseEntity.status(status).body(response);
     }
 }
