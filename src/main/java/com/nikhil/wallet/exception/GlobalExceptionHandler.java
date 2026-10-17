@@ -3,8 +3,11 @@ package com.nikhil.wallet.exception;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -18,22 +21,31 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ApiErrorResponse> handleBadRequest(
             BadRequestException exception) {
+
         return buildResponse(
-                HttpStatus.BAD_REQUEST, exception.getMessage());
+                HttpStatus.BAD_REQUEST,
+                exception.getMessage()
+        );
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiErrorResponse> handleNotFound(
             ResourceNotFoundException exception) {
+
         return buildResponse(
-                HttpStatus.NOT_FOUND, exception.getMessage());
+                HttpStatus.NOT_FOUND,
+                exception.getMessage()
+        );
     }
 
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<ApiErrorResponse> handleConflict(
             ConflictException exception) {
+
         return buildResponse(
-                HttpStatus.CONFLICT, exception.getMessage());
+                HttpStatus.CONFLICT,
+                exception.getMessage()
+        );
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -47,9 +59,24 @@ public class GlobalExceptionHandler {
                 .map(error -> error.getDefaultMessage())
                 .orElse("Invalid request");
 
-        return buildResponse(HttpStatus.BAD_REQUEST, message);
+        return buildResponse(
+                HttpStatus.BAD_REQUEST,
+                message
+        );
     }
 
+    // Return 403 when an authenticated user lacks permission.
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiErrorResponse> handleAccessDenied(
+            AccessDeniedException exception) {
+
+        return buildResponse(
+                HttpStatus.FORBIDDEN,
+                "Access denied"
+        );
+    }
+
+    // Log unexpected errors and return a generic 500 response.
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleException(
             Exception exception) {
@@ -57,19 +84,24 @@ public class GlobalExceptionHandler {
         logger.error(
                 "Unexpected error while processing request: {}",
                 exception.toString(),
-                exception);
+                exception
+        );
 
         return buildResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
-                "An unexpected error occurred");
+                "An unexpected error occurred"
+        );
     }
 
     private ResponseEntity<ApiErrorResponse> buildResponse(
-            HttpStatus status, String message) {
+            HttpStatus status,
+            String message) {
 
         ApiErrorResponse response =
                 new ApiErrorResponse(status.value(), message);
 
-        return ResponseEntity.status(status).body(response);
+        return ResponseEntity
+                .status(status)
+                .body(response);
     }
 }
